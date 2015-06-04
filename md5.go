@@ -2,7 +2,9 @@ package md5
 
 import (
 	"crypto/md5"
+	"encoding/hex"
 	"io"
+	"os"
 )
 
 func MD5(buff []byte) ([]byte, error) {
@@ -37,4 +39,19 @@ func IoMD5(read io.Reader) ([]byte, error) {
 	}
 
 	return h.Sum(nil), nil
+}
+
+func FileMD5(filename string) (string, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	h, err := IoMD5(file)
+	if err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(h), nil
 }

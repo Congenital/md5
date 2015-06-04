@@ -22,4 +22,6 @@ func TestMD5(t *testing.T) {
 	he, err := IoMD5(file)
 
 	log.Info(hex.EncodeToString(he), err)
+
+	log.Info(FileMD5("md5.go"))
 }
