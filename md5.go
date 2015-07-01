@@ -30,18 +30,19 @@ func (this *MD5Info) Write(buff []byte) (int, error) {
 	return len(buff), nil
 }
 
-func MD5(buff []byte) ([]byte, error) {
+func MD5(buff []byte) (string, []byte, error) {
 	h := md5.New()
 
 	_, err := h.Write(buff)
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
 
-	return h.Sum(nil), nil
+	m := h.Sum(nil)
+	return hex.EncodeToString(m), m, nil
 }
 
-func IoMD5(read io.Reader) ([]byte, error) {
+func IoMD5(read io.Reader) (string, []byte, error) {
 	h := md5.New()
 
 	buff := make([]byte, h.BlockSize())
@@ -52,33 +53,36 @@ func IoMD5(read io.Reader) ([]byte, error) {
 		}
 
 		if err != nil {
-			return nil, err
+			return "", nil, err
 		}
 
 		_, err = h.Write(buff)
 		if err != nil {
-			return nil, err
+			return "", nil, err
 		}
 	}
 
-	return h.Sum(nil), nil
+	m := h.Sum(nil)
+	return hex.EncodeToString(m), m, nil
 }
 
-func FileMD5(filename string) (string, error) {
+//Do not recommend, a mistake method
+func FileMD5(filename string) (string, []byte, error) {
 	file, err := os.Open(filename)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 	defer file.Close()
 
-	h, err := IoMD5(file)
+	m, h, err := IoMD5(file)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
-	return hex.EncodeToString(h), nil
+	return m, h, nil
 }
 
+//Recommend
 func MD5CMD(file string) (string, []byte, error) {
 	cmd := exec.Command("md5sum", file)
 
